@@ -1,0 +1,127 @@
+<style type="text/css">
+.content{
+	background-color: #fff;
+}
+.btns{
+	margin:20px;
+    margin-right: 50px;
+    float: right;
+
+}
+h5{
+	 color: #34b899;
+}
+  .nav_list{
+  	padding: 15px 20px;
+  	border-top: 2px solid #007bff;
+  	width: 200px;
+  	display: inline-block;
+  	background-color: #fff;
+  }
+     	    /*模态框里的选择器*/
+ #business_form select{
+ 	border:1px solid #ccc;
+	border-radius: 3px;
+	color:#767676;
+	padding:6px 12px;
+
+ }
+</style>
+<div class="nav_list">求职信息</div>
+<div class="content">
+<div class="btn btn-outline-dark">待联系</div>
+<!-- 显示数据的表格 -->
+	<table class="table empjobtable">
+	  <thead class="thead-dark">
+	    <tr>
+	      <th scope="col">#</th>
+	      <th scope="col">求职人</th>
+	      <th scope="col">求职岗位</th>
+	       <th scope="col">求职公司</th>
+	       <th scope="col">原因</th>
+	      <th scope="col">简历</th>
+	      <th scope="col">申请时间</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	  </tbody>
+	</table>
+			<!-- 分页按钮 -->
+		<div class="page" style="float: right;">
+			<nav aria-label="Page navigation example">
+				<ul class="pagination">				   
+				    <li class="page-item"><a class="page-link">1</a></li>
+				</ul>
+			</nav>
+		</div>
+</div>
+<script type="text/javascript">
+//获取商户的全部信息打印到表格中
+	 var baseURL="http://203.195.246.58:7777";
+	  $(function(){
+				init(1);
+			})
+   //-------------------实验的分页----------------------------
+     function init(page,data){
+             
+        var url = "/EmploymentJobhunter/findAll"
+			$.get(baseURL+url,function(response){
+		 		 console.log(response.data);//第一步：获取所有的数据
+		 		 var data=response.data; //第二步将数据赋给data数组
+		 		 var total=data.length; //获取数据的总长度
+		 		 var nums=5;//每一页多少条数据
+		 		 var sum_page; //总页数
+		 		 var cpage=1;//当前页数为第一页
+		 		 cpage=page;
+		 		  //计算总页码
+			        if (total%nums==0){
+					    sum_page=parseInt(total/nums);
+					    //若可以整除就是显示整页数
+					}else {
+							sum_page=parseInt(total/nums+1);
+							//若有余，加一页
+						}
+					getPage(sum_page,data); //获取页标
+					getdata(cpage,data);
+
+		 		});
+		}
+		init(1);//默认加载第一页
+			function getPage(sum_page,data){
+				var i;
+				var newitem;
+                    $('.pagination').empty();
+				   for(i=1;i<sum_page+1;i++){ //当前页表为已经默认有1，若页标小于总页数i++，从2开始
+				   	 newitem="<li class='page-item'><a class='page-link' onclick='init("+i+")'>"+ i +"</a></li>";
+				   	 //添加新的页标
+    			     $('.pagination').append();
+    			     $('.pagination').append(newitem);
+    			     //添加页标
+				   }
+
+			}
+			function getdata(cpage,data){
+				var nawTr;
+			     //获取数据
+			     var j=(cpage-1)*5;//获取开始索引
+			     var k;//获取结束索引
+               $(".empjobtable> tbody").empty();
+               //通过employmentId获取求职者的信息
+             
+
+			     for(k=0;k<=5;k++){
+			     	newTr = $(`<tr>
+				 		<td><input type="checkbox" class="checkbox"value="`+data[j+k].id+`"></td>
+						<td>`+data[j+k].name+`</td>
+						<td>`+data[j+k].jobhunterId+`</td>
+						<td>`+data[j+k].employmentId+`</td>
+						<td>`+data[j+k].remark+`</td>
+						<td><a class="btn_all" href="javascript:void(0)">查看</a></td>
+						<td>`+data[j+k].askTime+`</td>
+			 	</tr>`);
+				  $(".empjobtable> tbody").append(newTr);
+
+			     }
+			}
+	 
+</script>

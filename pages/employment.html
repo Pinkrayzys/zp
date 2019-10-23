@@ -1,0 +1,594 @@
+<style type="text/css">
+.content{
+	background-color: #fff;
+}
+ul,li{
+	margin:0;
+	padding: 0;
+}
+li{list-style: none;
+
+}
+h5{
+	 color: #34b899;
+}
+.top_nav li{
+    padding: 15px 20px;
+  	width: 200px;
+  	display: inline-block;
+  	background-color: #fff;
+  	box-sizing: border-box;
+} 
+.nav_this{
+	border-top: 2px solid #007bff;
+	border-bottom: 3px solid #fff;
+    
+}
+.btns{
+	float: right;
+	margin-top: 10px;
+
+}
+.bas{
+	border-radius: 10px;
+	width:20px;
+	height:20px;
+}
+.findby{
+	float: left;
+	margin:10px;
+
+}
+.findby select{
+	border:1px solid #ccc;
+	border-radius: 5px;
+	padding:8px 15px;
+	color:#767676;
+  }
+
+.search{
+  	float: right;
+  	margin-left: 750px;
+  }
+   .search input{
+   	padding:5px;
+   	border-radius: 5px;
+   	border: 1px solid #ccc;
+   	color:#ccc;
+   	   }
+   	    /*模态框里的选择器*/
+ #employment_form select{
+ 	border:1px solid #ccc;
+	border-radius: 3px;
+	color:#767676;
+	padding:6px 12px;
+ }
+#delmore{
+	float: left;
+	font-size: 10px;
+	background-color: red;
+	color: #fff;
+	border-radius: 5px;
+	padding:5px;
+}
+
+</style>
+<div class="top_nav">
+    <ul>
+    	<li class="nav_this"  url="./pages/employment-message.html">招聘信息</li>
+    	<li class=""  url="./pages/employment-status.html">招聘状态</li>  	
+	    	<div class="btns">
+				<div id="btn-add" class="btn bg-warning"><span class="badge bas badge-light" style="color:#ff6600; font-size:14px;">i</span>&nbsp;发布职位</div>
+		    	<div id="btn-in" class="btn bg-primary"><span class="badge bas badge-light" style="color:#007bff; font-size: 14px;">i</span>&nbsp;导入职位</div>
+	        </div>
+    </ul>
+    
+</div>
+<div class="content">
+  <h5>招聘信息</h5>
+		<div class="findby">
+				<!--  职业类型 -->
+				   <select class="sejob">
+				   <option value="0">职业类型</option>
+				   </select>
+				 <div class="search">
+				    <input type="text" name="sea" placeholder="请输入关键字..." id="word">
+				      <div class="btn btn-secondary" id="sea">搜索</div>
+				      <div  id="btn-black" class="btn btn-outline-danger">还原</div>
+				   </div>		       		       
+				</div>
+			<div class="tablecontent">
+			</div>
+			<!-- 分页按钮 -->
+	    <div id="delmore">批量删除</div>
+		<div class="page" style="float: right;">
+			<nav aria-label="Page navigation example">
+				<ul class="pagination">
+				    <li class="page-item"><a class="page-link">1</a></li>
+				</ul>
+			</nav>
+		</div>
+</div>
+<script type="text/javascript">
+//为切页的的div绑定事件(只是样式转换）
+$(".tablecontent").load("./pages/employment-message.html");
+
+			$(".top_nav>ul").on("click","li",function(){
+			var url = $(this).attr("url");
+			   $("ul>li").removeClass("nav_this");
+               $(this).addClass("nav_this");
+               $(".tablecontent").load(url);
+               init(1);
+			})
+			//文档加载后执行
+			$(function(){
+				initEmploymentData();
+				newjob();
+				newbusinessId();
+				newwelfare();
+				init(1);
+			})
+
+
+//获取商户的全部信息打印到表格中
+	 var baseURL="http://203.195.246.58:7777";
+	 //定义函数
+	 //---------------分页-------------
+	  function init(page){
+             
+        var url = "/Employment/findAll "
+			$.get(baseURL+url,function(response){
+		 		
+		 		 console.log(response.data);//第一步：获取所有的数据
+		 		 var data=response.data; //第二步将数据赋给data数组
+		 		 console.log(data);
+		 		 var total=data.length; //获取数据的总长度
+		 		
+		 		 var nums=5;//每一页多少条数据
+		 		 var sum_page; //总页数
+		 		 var cpage=1;//当前页数为第一页
+		 		 cpage=page;
+		 		
+		 		  //计算总页码
+			        if (total%nums==0){
+					    sum_page=parseInt(total/nums);
+					    //若可以整除就是显示整页数
+					}else {
+							sum_page=parseInt(total/nums+1);
+							//若有余，加一页
+						}
+				
+					getPage(sum_page,data); //获取页标
+					getdata(cpage,data);
+
+		 		});
+		}
+		init(1);//默认加载第一页
+			function getPage(sum_page,data){
+				var i;
+				
+				var newitem;
+                    $('.pagination').empty();
+				   for(i=1;i<sum_page+1;i++){ //当前页表为已经默认有1，若页标小于总页数i++，从2开始
+				   	 newitem="<li class='page-item'><a class='page-link' onclick='init("+i+")'>"+ i +"</a></li>";
+				   	
+    			     $('.pagination').append();
+    			     $('.pagination').append(newitem);
+    			     //添加页标
+				   }
+
+			}
+			function getdata(cpage,data){
+				var nawTr;
+			     //获取数据
+			     var j=(cpage-1)*5;//获取开始索引
+			     var k;//获取结束索引
+              $(".employmenttable >tbody").empty();
+               $(".statustable>tbody").empty();
+			     for(k=0;k<=5;k++){
+			     	newTr = $(`<tr>
+				 		<td><input type="checkbox" class="checkbox"value="`+data[j+k].id+`"></td>
+						<td>`+data[j+k].title+`</td>
+						<td>`+data[j+k].contactName+`</td>
+						<td>`+data[j+k].contactPhone+`</td>
+						<td>`+data[j+k].job+`</td>
+						<td>`+data[j+k].publishTime+`</td>
+					<td><a class="btn_all" href="javascript:void(0)">查看</a></td>
+				 		<td>
+				 			<a class="btn_del" href="javascript:void(0)">删除</a>
+							<a class="btn_upd" href="javascript:void(0)">修改</a>
+				 		</td>
+			 	</tr>`);
+
+					newsta = $(`<tr>
+				 		<td><input type="checkbox" class="checkbox"value="`+data[j+k].id+`"></td>
+						<td>`+data[j+k].title+`</td>
+						<td>`+data[j+k].contactName+`</td>
+						<td>`+data[j+k].contactPhone+`</td>
+						<td>`+data[j+k].job+`</td>
+						<td>`+data[j+k].publishTime+`</td>
+						<td><a class="btn_all" href="javascript:void(0)">查看</a></td>
+						<td style='color:red;'>`+data[j+k].status+`</td>
+			 	</tr>`);
+				$(".statustable>tbody").append(newsta);
+				$(".employmenttable >tbody").append(newTr);
+
+			     }
+			}
+	  
+	 //初始化加载数据
+	 function initEmploymentData(){
+			var url = "/Employment/findAll "
+			$.get(baseURL+url,function(response){
+			     //工作类型
+			     $('.sejob').empty();
+			     $('.sejob').append("<option value='0'>职业类型</optio>");
+			      //---------实验下拉框去重---------
+			  var arrjob=[];
+			  //使用空数组arr接收返回数据中的地址信息
+			     
+			   response.data.forEach(function(item){
+			   	arrjob.push(item.job);
+								
+				});
+			     //重新定义数组去重函数
+			   Array.prototype.myjob = function(){
+			   	var newjob=[];
+			   	for (var i = 0; i < arrjob.length; i++){
+			   		var a=newjob.indexOf(arrjob[i]);
+			   		if(a==-1){
+			   			newjob[newjob.length]=arrjob[i];
+			   		}
+			   	}	
+			   	return newjob;	   	
+			   }
+			    var job=arrjob.myjob();
+			   job.forEach(function(item){
+			   	if (item!=null&&item!='') {
+                  //添加地址子选项
+				 var newjoboption=$(`<option value="`+item+`">`+item+`</option>`);
+			   	}
+			   	$(".sejob").append(newjoboption);
+			   })
+			   
+
+			})
+		}
+     //定义一个
+		function foreach(response){
+			$('.employmenttable>tbody').empty();
+			$('.statustable>tbody').empty();
+		  response.data.forEach(function(item){
+					var newTr = $(`<tr>
+						<td><input type="checkbox" class="checkbox"value="`+item.id+`"></td>
+						<td>`+item.title+`</td>
+						<td>`+item.contactName+`</td>
+						<td>`+item.contactPhone+`</td>
+						<td>`+item.job+`</td>
+						<td>`+item.publishTime+`</td>
+						<td><a class="btn_all" href="javascript:void(0)">查看</a></td>
+						<td>
+						<a class="btn_upd" href="javascript:void(0)">修改</a>
+						<a class="btn_del" href="javascript:void(0)">删除</a>
+							
+						</td>
+					</tr>`);
+					$(".employmenttable >tbody").append(newTr);	
+
+				newsta = $(`<tr>
+				 		<td><input type="checkbox" class="checkbox"value="`+item.id+`"></td>
+						<td>`+item.title+`</td>
+						<td>`+item.contactName+`</td>
+						<td>`+item.contactPhone+`</td>
+						<td>`+item.job+`</td>
+						<td>`+item.publishTime+`</td>
+						<td><a class="btn_all" href="javascript:void(0)">查看</a></td>
+						<td style='color:red;'>`+item.status+`</td>
+			 	</tr>`);
+				$(".statustable>tbody").append(newsta);
+							});			  
+		}
+		//职业类型选择器
+	 $(".sejob").change(function(){
+	 	var url="/Employment/findByJob"
+	 	var opt=$(".sejob option:selected").val();	 	
+	 	if(opt==0){
+	 		init();
+	 	}else{
+	 		var data={job:opt};
+			$.get(baseURL+url,data,function(response){
+				foreach(response);
+								
+					});
+	 	}
+	 })
+	 //为模态框中的元素添加事件
+	 //为模态框中的下拉框绑定事件
+	 
+	 //为工种的子选项添加子元素
+	 function newjob(){
+	 	 var url = "/Jobs/findAll";
+        $.get(baseURL+url,function(response){
+			    //添加一个默认省份选项
+			     $('#job').empty();
+			     $('#job').append("<option value='0'>选择职业</optio>");
+			       response.data.forEach(function(item){
+					    //添加城市子选项
+					var joboption=$(`<option value="`+item.name+`" id="`+item.id+`">`+item.name+`</option>`);
+					$("#job").append(joboption);
+			})			
+	 });
+	}
+	  //为所属公司的子选项添加子元素
+	 function newbusinessId(){
+	 	 var url = "/Business/findAll";
+        $.get(baseURL+url,function(response){
+			    //添加一个默认省份选项
+			     $('#businessId').empty();
+			     $('#businessId').append("<option value='0'>选择所属公司</optio>");
+			     response.data.forEach(function(item){
+				//添加城市子选项
+					var busidoption=$(`<option value="`+item.id+`">`+item.name+`</option>`);
+					$("#businessId").append(busidoption);			
+				})
+		});	
+		
+	 }
+	   //为福利添加子元素
+       function newwelfare(){
+        var url = "/Welfare/findAll";
+        $.get(baseURL+url,function(response){
+			    //添加一个默认省份选项
+			     $('#welfare').empty();
+			     $('#welfare').append("<option value='0'>选择福利</optio>");
+			       response.data.forEach(function(item){
+					    //添加城市子选项
+					var weloption=$(`<option value="`+item.name+`">`+item.name+`</option>`);
+					$("#welfare").append(weloption);
+			});
+				
+		});
+       }
+       //为职业的选择添加事件
+	 $("#job").change(function(){
+	 	var url="/Jobs/findAll"
+	 	var opt=$("#job option:selected").val();
+	 	console.log(opt);
+	 	
+	 	if(opt==0){
+	 		init();
+	 	}else{
+	 		var data={
+	 			name:opt
+	 		}; 		
+			$.get(baseURL+url,data,function(response){
+
+			  response.data.forEach(function(item){
+					  if(item.name==opt){
+					  }	
+					});
+	 	});
+	 }
+	})
+
+		//为关闭模态框按钮绑定事件
+			function closeModal(){
+			//编写代码表单重置
+			$(this).parents(".modal").modal("hide");
+			 $('#employment_form input[name=id]').val("");
+			 $('#employment_form input').val("");
+			 $('.employmentallModalbody').find("span").remove();
+			 $("#job ").val(0);
+			 $("#welfare").val(0);
+			 $("#estatus").val(0);
+			  $("#workingHours").val(0);
+			 $("#auditStatus").val(0);
+			  $("#businessId").val(0);
+
+
+		}
+		//为保存按钮添加事件
+		 //为保存按钮添加事件
+	 function submitEmployment(){
+	 	// 1. 获取用户名手机号密码
+			    var id= $("#employment_form input[name=id]").val();
+				var title= $("#employment_form input[name=title]").val();
+				var contactName= $("#employment_form input[name=contactName]").val();
+				var contactPhone=$("#employment_form input[name=contactPhone]").val();
+				var job = $("#job option:selected").val();
+				var welfare = $("#welfare option:selected").val();
+				var salary = $("#employment_form input[name=salary]").val();
+				var description= $("#employment_form input[name=description]").val();
+				var status = $("#estatus option:selected").val();
+				var workingHours = $("#workingHours option:selected").val();
+				var auditStatus = $("#auditStatus option:selected").val();
+				var num= $("#employment_form  input[name=num]").val();
+				var businessId= $("#businessId option:selected").val();
+
+				var date;
+				// 2. 与后台交互	
+				var url ="/Employment/saveOrUpdate"
+					if(id){
+				data = "id="+id+"&title="+title+"&contactName="+contactName+"&contactPhone="+contactPhone+"&job="+job+"&welfare="+welfare+"&salary="+salary+"&description="+description+"&status="+status+"&num="+num+"&businessId="+businessId+"&workingHours="+workingHours+"&auditStatus="+auditStatus;
+			} else {
+				data ="&title="+title+"&contactName="+contactName+"&contactPhone="+contactPhone+"&job="+job+"&welfare="+welfare+"&salary="+salary+"&description="+description+"&status="+status+"&num="+num+"&businessId="+businessId+"&workingHours="+workingHours+"&auditStatus="+auditStatus;
+			}
+				$.post(baseURL+url,data,function(result){
+					if(result.status === 200){
+					// 3. 关闭模态框，刷新列表
+						$("#employmentModal").modal("hide");
+						closeModal.call(this);
+						initEmploymentData();
+						alert(result.message);
+					} else {
+						alert("接口异常");
+						console.log(result.message)
+					}
+				});
+	 }
+	//为添加按钮绑定事件
+
+		 $(function(){	
+		  $('#btn-add').click(function(){
+		  	$("#employmentModal").modal("show");
+
+		  	 })
+		  $('#btn-in').click(function(){
+		  alert("导入职位信息");
+		  	 })
+		  $('#btn-black').click(function(){
+		  	  init(1);
+		  	  initEmploymentData();
+		  	 })
+		  //为批量删除按钮绑定事件
+		  $('#delmore').click(function(){
+		  		alert("确定批量删除吗?")
+		   		 var id=$(':checkbox:checked').map(function(index,item){
+			return $(item).val();
+		}).toArray();
+		   		id.forEach(function(item){
+		   			console.log(item);
+		   			var url = "/Employment/deleteById";
+					//获取需要删除的id
+					var data = {id:item};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.post(baseURL+url,data,function(response){
+	
+					});
+
+		   		})
+		   		initEmploymentData();
+			init(1);
+		  	 })
+
+		})
+		   
+	
+	
+			 //为表格按钮组添加事件
+		 	$(function(){
+			// 为删除按钮绑定事件
+		$(".tablecontent").on("click","a",function(){
+			switch(this.className){
+				case "btn_del":
+					var url = "/Employment/deleteById ";
+					//获取需要删除的id
+					var id = $(this).parents("tr").find("input").val()
+					// get请求方式的数据必须为对象传递
+					var data = {id:id};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.post(baseURL+url,data,function(response){
+						alert(response.message);
+						initEmploymentData();
+						init(1);
+					});
+					break;
+					//为修改按钮添加事件
+				case "btn_upd":
+					$("#employmentModal").modal("show");
+					alert("确认更改这条数据")          
+	           		 // 1. 将原有的信息放到表单中9
+					var id=$(this).parents("td").parents("tr").find("input").val();
+					var title;
+					var contactName;
+					var contactPhone;
+					var job;
+					 var welfare;
+					 var salary;
+					 var description;
+					 var status;
+					 var num;
+					 var businessId;
+					var url = "/Employment/findById";
+					//获取需要删除的id
+					var id = $(this).parents("tr").find("input").val()
+					// get请求方式的数据必须为对象传递
+					var data = {id:id};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.get(baseURL+url,data,function(response){
+						console.log(response);
+						initEmploymentData();
+						console.log(response.data);
+						var v=response.data;
+					    $("#employment_form input[name=id]").val(v.id);
+						$("#employment_form input[name=title]").val(v.title);
+						$("#employment_form input[name=contactName]").val(v.contactName);
+						$("#employment_form input[name=contactPhone]").val(v.contactPhone);
+						$("#employment_form input[name=job]").val(v.job);
+						$("#employment_form input[name=welfare]").val(v.welfare);
+						$("#employment_form input[name=salary]").val(v.salary);
+						$("#employment_form input[name=description]").val(v.description);
+						$("#employment_form input[name=status]").val(v.status);
+						$("#employment_form input[name=num]").val(v.num);
+						$("#employment_form input[name=businessId]").val(v.businessId);
+							init(1);
+						
+			         })
+				
+					break;
+				case "btn_all":
+					var url = "/Employment/findById";
+					//获取需要删除的id
+					$("#employmentallModal").modal("show");
+					var id = $(this).parents("tr").find("input").val()
+					// get请求方式的数据必须为对象传递
+					var data = {id:id};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.get(baseURL+url,data,function(response){
+						console.log(response);
+						initEmploymentData();
+						console.log(response.data);
+						var val=response.data;
+						console.log(val.name);		
+						$(".employmentallModalbody h4[name=title]").append('<span>'+val.title+'</span>');
+				  		$(".employmentallModalbody p[name=contactName]").append('<span>'+val.contactName+'</span>');
+						$(".employmentallModalbody p[name=contactPhone]").append('<span>'+val.contactPhone+'</span>');
+						$(".employmentallModalbody p[name=job]").append('<span>'+val.job+'</span>');
+						$(".employmentallModalbody p[name=welfare]").append('<span>'+val.welfare+'</span>');
+						$(".employmentallModalbody h4[name=salary]").append('<span>'+val.salary+'</span>');
+						$(".employmentallModalbody p[name=businessId]").append('<span>'+val.businessId+'</span>');
+						$(".employmentallModalbody p[name=num]").append('<span>'+val.num+'</span>');
+						$(".employmentallModalbody p[name=description]").append('<span>'+val.description+'</span>');
+						$(".employmentallModalbody p[name=publishTime]").append('<span>'+val.publishTime+'</span>');
+						$(".employmentallModalbody p[name=status]").append('<span>'+val.status+'</span>');
+					});
+					
+				     
+					break;
+			}
+		})
+	})
+    //为搜索按钮绑定事件
+    $("#sea").click(function(){
+    	search($("input#word").val());
+    })
+    // 为搜索框绑定按下回车按钮自动模糊搜索事件
+	$("input#word").keyup(function(event){
+		// 当键盘按下的是回车键时
+		if (event.keyCode === 13) {
+			// 先获取到搜索框中输入的值，调用函数进行模糊查询
+			search($(this).val());
+		}	
+	});
+
+    //按标题关键字查询构造函数
+   function search(opt){
+   	var url="/Employment/findByTitle"
+	 	console.log(opt);	 	
+	 	if(opt==0){
+	 		alert("输入不能为空");
+	 		init(1);
+	 	}else{
+	 		var data={title:opt};
+			$.get(baseURL+url,data,function(response){
+						foreach(response);	
+					});
+	 	}
+
+
+   }
+
+		
+
+
+</script>

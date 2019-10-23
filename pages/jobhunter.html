@@ -1,0 +1,487 @@
+<style type="text/css">
+.content{
+	background-color: #fff;
+}
+ul,li{
+	margin:0;
+	padding: 0;
+}
+li{list-style: none;
+
+}
+h5{
+	 color: #34b899;
+}
+.top_nav li{
+    padding: 15px 20px;
+  	width: 200px;
+  	display: inline-block;
+  	background-color: #fff;
+  	box-sizing: border-box;
+} 
+.nav_this{
+	border-top: 2px solid #007bff;
+	border-bottom: 3px solid #fff;
+    
+}
+.btns{
+	float: right;
+	margin-top: 10px;
+
+}
+.bas{
+	border-radius: 10px;
+	width:20px;
+	height:20px;
+}
+.findby{
+	float: left;
+	margin:10px;
+
+}
+select{
+	border:1px solid #ccc;
+	border-radius: 5px;
+	padding:8px 15px;
+	color:#767676;
+
+  }
+  .search{
+  	float: right;
+  	margin-left: 600px;
+  }
+   .search input{
+   	padding:5px;
+   	border-radius: 5px;
+   	border: 1px solid #ccc;
+   	color:#ccc;
+   	   }
+#delmore{
+	float: left;
+	font-size: 10px;
+	background-color: red;
+	color: #fff;
+	border-radius: 5px;
+	padding:5px;
+}
+</style>
+<div class="top_nav">
+    <ul>
+    	<!-- 表头选项 -->
+    	<li class="nav_this">用户信息</li> 
+            <!-- 表头按钮组 -->
+	    	<div class="btns">
+				<div id="btn-add" class="btn bg-warning"><span class="badge bas badge-light" style="color:#ff6600; font-size:14px;">i</span>&nbsp;添加用户</div>
+		    	<div id="btn-in" class="btn bg-primary"><span class="badge bas badge-light" style="color:#007bff; font-size: 14px;">i</span>&nbsp;导入用户</div>
+	        </div>
+    </ul>
+    
+</div>
+<div class="content">
+<h5>用户信息</h5>
+<!-- 下拉框选择器查找开始 -->
+<div class="findby">
+       <!--  学历-->
+		   <select class="seedu">
+		   <option value="0">学历</option>
+		   </select>
+		<!--  性别 -->
+		   <select class="segen">
+		   <option value="0">性别</option>
+		   </select>
+		   
+		   <div class="search">
+		   		<input type="text" name="sea" placeholder="请输入关键字..." id="word">
+		      	<div class="btn btn-secondary" id="sea">搜索</div>
+		      	<div  id="btn-black" class="btn btn-outline-danger">还原</div>
+		   </div>
+		       		       
+		</div>
+	<table class="table jobhtable">
+	  <thead class="thead-dark">
+	    <tr>
+	      <th scope="col">#</th>
+	      <th scope="col">用户名</th>
+	      <th scope="col">姓名</th>
+	      <th scope="col">手机号</th>
+	      <th scope="col">性别</th>
+	      <th scope="col">出生年月</th>
+	      <th scope="col">最高学历</th>
+	      <th scope="col">操作</th>
+	    </tr>
+	  </thead>
+		  <tbody>
+		  </tbody>
+	</table>
+	 <div id="delmore">批量删除</div>
+		<!-- 分页按钮 -->
+		<div class="page" style="float: right;">
+			<nav aria-label="Page navigation example">
+				<ul class="pagination">
+				    <li class="page-item"><a class="page-link">1</a></li>
+				</ul>
+			</nav>
+		</div>
+</div>
+<script type="text/javascript">
+
+//获取商户的全部信息打印到表格中
+	 var baseURL="http://203.195.246.58:7777";
+	 //定义函数
+	 //---------------分页-------------
+	  function init(page){
+             
+        var url = "/Jobhunter/findAll"
+			$.get(baseURL+url,function(response){
+		 		 console.log(response.data);//第一步：获取所有的数据
+		 		 var data=response.data; //第二步将数据赋给data数组
+		 		 console.log(data);
+		 		 var total=data.length; //获取数据的总长度
+		 		 var nums=5;//每一页多少条数据
+		 		 var sum_page; //总页数
+		 		 var cpage=1;//当前页数为第一页
+		 		 cpage=page;
+		 		  //计算总页码
+			        if (total%nums==0){
+					    sum_page=parseInt(total/nums);
+					    //若可以整除就是显示整页数
+					}else {
+							sum_page=parseInt(total/nums+1);
+							//若有余，加一页
+						}
+					console.log("总页数："+sum_page);
+					getPage(sum_page,data); //获取页标
+					getdata(cpage,data);
+
+		 		});
+		}
+		init(1);//默认加载第一页
+			function getPage(sum_page,data){
+				var i;
+				console.log(sum_page);
+				var newitem;
+                    $('.pagination').empty();
+				   for(i=1;i<sum_page+1;i++){ //当前页表为已经默认有1，若页标小于总页数i++，从2开始
+				   	 newitem="<li class='page-item'><a class='page-link' onclick='init("+i+")'>"+ i +"</a></li>";
+    			     $('.pagination').append(newitem);
+    			     //添加页标
+				   }
+
+			}
+			function getdata(cpage,data){
+				var nawTr;
+			     //获取数据
+			     var j=(cpage-1)*5;//获取开始索引
+			     var k;//获取结束索引
+              $(".jobhtable >tbody").empty();
+                  
+			     for(k=0;k<=5;k++){
+			     	newTr = $(`<tr>
+				 		<td><input type="checkbox" class="checkbox"value="`+data[j+k].id+`"></td>
+						<td>`+data[j+k].username+`</td>
+						<td>`+data[j+k].realname+`</td>
+						<td>`+data[j+k].telephone+`</td>
+						<td>`+data[j+k].gender+`</td>
+						<td>`+data[j+k].birth+`</td>
+						<td>`+data[j+k].education+`</td>					  
+				 		<td>
+				 			<a class="btn_del" href="javascript:void(0)">删除</a>
+							<a class="btn_upd" href="javascript:void(0)">修改</a>
+				 		</td>
+			 	</tr>`);
+				$(".jobhtable >tbody").append(newTr);
+			     }
+			}
+	 //为关闭模态框按钮添加事件
+	 function closeModal(){
+			//编写代码表单重置
+			$(this).parents(".modal").modal("hide");
+			 $('#jobh_form input[name=id]').val("");
+			 $('#jobh_form input').val("");
+			 $("#education").val(0);
+			 $("#workTime").val(0);
+			  $("#currentStatus").val(0);
+
+		}
+		//为保存按钮绑定事件
+		 function submitJobh(){
+	 	// 1. 获取用户名手机号密码
+			    var id= $("#jobh_form input[name=id]").val();
+				var username=$("#jobh_form input[name=username]").val();
+				var password=$("#jobh_form input[name=password]").val();
+				var realname=$("#jobh_form input[name=realname]").val();
+				var telephone=$("#jobh_form input[name=telephone]").val();
+				var gender=$("input[name='gender']:checked").attr("id");
+				var birth=$("#jobh_form input[name=birth]").val();
+				var education=$("#education option:selected").val();
+				var resume =$("#jobh_form input[name=resume]").val();
+				var workTime=$("#workTime option:selected").val();
+				var currentStatus=$("#currentStatus option:selected").val();
+				var date;
+				// 2. 与后台交互	
+				var url ="/Jobhunter/saveOrUpdate"
+					if(id){
+				data = "id="+id+"&username="+username+"&password="+password+"&realname="+realname+"&telephone="+telephone+"&gender="+gender+"&birth="+birth+"&education="+education+"&resume="+resume+"&workTime="+workTime+"&currentStatus="+currentStatus;
+			} else {
+				data ="&username="+username+"&password="+password+"&realname="+realname+"&telephone="+telephone+"&gender="+gender+"&birth="+birth +"&education="+education+"&resume="+resume+"&workTime="+workTime+"&currentStatus="+currentStatus;
+			}
+				$.post(baseURL+url,data,function(result){
+					if(result.status === 200){
+					// 3. 关闭模态框，刷新列表
+						$("#jobhModal").modal("hide");
+						closeModal.call(this);
+						init(1);
+						alert(result.message);
+					} else {
+						alert("接口异常");
+						console.log(result.message)
+					}
+				});
+	 }
+
+	//为表头按钮组添加绑定事件
+
+		 $(function(){	
+		  $('#btn-add').click(function(){
+		  	$("#jobhModal").modal("show");
+		  	 })
+		  $('#btn-in').click(function(){
+		  alert("导入用户信息");
+		  	 })
+		   //为还原按钮添加事件
+		  $('#btn-black').click(function(){
+		  	  init(1);
+		  	 })
+		  //顺便加一个批量删除的事件
+		  	 $('#delmore').click(function(){
+		       alert("确定批量删除吗?")
+		   		 var id=$(':checkbox:checked').map(function(index,item){
+			return $(item).val();
+		}).toArray();
+		   		id.forEach(function(item){
+		   			console.log(item);
+		   			var url = "/Jobhunter/deleteById";
+					//获取需要删除的id
+					var data = {id:item};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.post(baseURL+url,data,function(response){
+					
+					});
+
+		   		})
+		   initJobhData();
+			init(1);
+		  	 })  
+		})
+		   
+	  
+	 //初始化加载数据
+	 function initJobhData(){
+			var url = "/Jobhunter/findAll"
+			$.get(baseURL+url,function(response){
+				console.log(response);
+			    //按学历查找
+			     $('.seedu').empty();
+			     $('.seedu').append("<option value='0'>学历</optio>");
+			     //按性别查找
+			     $('.segen').empty();
+			     $('.segen').append("<option value='0'>性别</optio>");
+			     
+         		   response.data.forEach(function(item){
+					var neweduoption=$(`<option value="`+item.education+`">`+item.education+`</option>`);
+					$(".seedu").append(neweduoption);
+					//为通过职业查找添加子元素
+					var newgenoption=$(`<option value="`+item.gender+`">`+item.gender+`</option>`);
+					$(".segen").append(newgenoption);
+								
+				});
+			})
+		}
+		  //学历类型选择器
+	 $(".seedu").change(function(){
+	 	var url="/Jobhunter/findByEducation"
+	 	var opt=$(".seedu option:selected").val();
+	 	
+	 	if(opt==0){
+	 		init();
+	 	}else{
+	 		var data={education:opt};
+			$.get(baseURL+url,data,function(response){
+	
+					$('.jobhtable>tbody').empty();
+
+			    response.data.forEach(function(item){
+					newTr = $(`<tr>
+				 		<td><input type="checkbox" class="checkbox"value="`+item.id+`"></td>
+						<td>`+item.username+`</td>
+					<td>`+item.realname+`</td>
+						<td>`+item.telephone+`</td>
+						<td>`+item.gender+`</td>
+						<td>`+item.birth+`</td>
+					   <td>`+item.education+`</td>
+				 		<td>
+				 			<a class="btn_del" href="javascript:void(0)">删除</a>
+							<a class="btn_upd" href="javascript:void(0)">修改</a>
+				 		</td>
+			 	</tr>`);
+				$(".jobhtable >tbody").append(newTr);
+							});						
+					});
+	 	}
+	 })
+	   //性别选择器
+	 $(".segen").change(function(){
+	 	var url="/Jobhunter/findByGender"
+	 	var opt=$(".segen option:selected").val();
+	 	console.log(opt);
+	 	
+	 	if(opt==0){
+	 		init();
+	 	}else{
+	 		var data={gender:opt};
+			$.get(baseURL+url,data,function(response){
+			 $('.jobhtable>tbody').empty();
+
+			    response.data.forEach(function(item){
+					newTr = $(`<tr>
+				 		<td><input type="checkbox" class="checkbox"value="`+item.id+`"></td>
+						<td>`+item.username+`</td>
+					<td>`+item.realname+`</td>
+						<td>`+item.telephone+`</td>
+						<td>`+item.gender+`</td>
+						<td>`+item.birth+`</td>
+					   <td>`+item.education+`</td>
+				 		<td>
+				 			<a class="btn_del" href="javascript:void(0)">删除</a>
+							<a class="btn_upd" href="javascript:void(0)">修改</a>
+				 		</td>
+			 	</tr>`);
+				$(".jobhtable >tbody").append(newTr);
+							});						
+					});
+	 	}
+	 })
+	 //为搜索框绑定事件
+	  //为搜索按钮绑定事件
+    $("#sea").on("click",function(){
+    	search($("input#word").val());
+
+    })
+    // 为搜索框绑定按下回车按钮自动模糊搜索事件
+	$("input#word").keyup(function(event){
+		// 当键盘按下的是回车键时
+		if (event.keyCode === 13) {
+			// 先获取到搜索框中输入的值，调用函数进行模糊查询
+			search($(this).val());
+		}	
+	});
+
+    //按标题关键字查询构造函数
+   function search(opt){
+   	var url="/Jobhunter/findByUsername"
+	 	
+	 	if(opt==0){
+	 		alert("输入不能为空");
+	 		init(1);
+	 	}else{
+	 		var data={username:opt};
+			$.get(baseURL+url,data,function(response){
+
+			 $('.jobhtable>tbody').empty();
+			    response.data.forEach(function(item){
+					newTr = $(`<tr>
+				 		<td><input type="checkbox" class="checkbox"value="`+item.id+`"></td>
+						<td>`+item.username+`</td>
+					   <td>`+item.realname+`</td>
+						<td>`+item.telephone+`</td>
+						<td>`+item.gender+`</td>
+						<td>`+item.birth+`</td>
+					    <td>`+item.education+`</td>
+				 		<td>
+				 			<a class="btn_del" href="javascript:void(0)">删除</a>
+							<a class="btn_upd" href="javascript:void(0)">修改</a>
+				 		</td>
+			 	</tr>`);
+				$(".jobhtable >tbody").append(newTr);
+							});						
+					});
+	 	}
+
+
+   }
+
+	
+	
+
+			$(function(){
+				initJobhData();
+			})
+
+	
+			 //为表格按钮组添加事件
+		 	$(function(){
+			// 为删除按钮绑定事件
+		$(".table>tbody").on("click","a",function(){
+			switch(this.className){
+				case "btn_del":
+					var url = "/Jobhunter/deleteById";
+					//获取需要删除的id
+					var id = $(this).parents("tr").find("input").val()
+					// get请求方式的数据必须为对象传递
+					var data = {id:id};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.post(baseURL+url,data,function(response){
+						alert(response.message);
+						init(1);
+					});
+					break;
+					//为修改按钮添加事件
+				case "btn_upd":
+				$("#jobhModal").modal("show");
+					alert("确认更改这条数据")          
+	            // 1. 将原有的信息放到表单中9
+					var id=$(this).parents("td").parents("tr").find("input").val();
+						 var id= $("#jobh_form input[name=id]").val();
+							var username;
+							var password;
+							var realname;
+							var telephone;
+							var gender;
+							var birth;
+							var education;
+							var resume;
+							var workTime;
+							var currentStatus;
+					var url = "/Jobhunter/findById";
+					//获取需要删除的id
+					var id = $(this).parents("tr").find("input").val()
+					// get请求方式的数据必须为对象传递
+					var data = {id:id};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.get(baseURL+url,data,function(response){
+						console.log(response);
+						init(1);
+						initJobhData();
+						console.log(response.data);
+						var v=response.data;
+						$("#jobh_form input[name=id]").val(v.id);
+				$("#jobh_form input[name=username]").val(v.username);
+				$("#jobh_form input[name=password]").val(v.password);
+				$("#jobh_form input[name=realname]").val(v.realname);
+				$("#jobh_form input[name=telephone]").val(v.telephone);
+				$("#jobh_form input[name=gender]").val(v.gender);
+				$("#jobh_form input[name=birth]").val(v.birth);
+				$("#jobh_form input[name=education]").val(v.education);
+				$("#jobh_form input[name=resume]").val(v.resume);
+				$("#jobh_form input[name=workTime]").val(v.workTime);
+				$("#jobh_form input[name=currentStatus]").val(v.currentStatus);
+					
+			});
+			break;		
+		}
+	 });
+	})
+		
+
+
+</script>

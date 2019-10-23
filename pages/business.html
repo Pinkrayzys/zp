@@ -1,0 +1,621 @@
+<style type="text/css">
+.content{
+	background-color: #fff;
+}
+
+h5{
+	 color: #34b899;
+}
+ .btns{
+	margin:20px;
+    margin-right: 50px;
+    float: right;
+
+}
+.findby{
+	float: left;
+	margin: 20px;
+
+}
+.findby select{
+	border:1px solid #ccc;
+	border-radius: 5px;
+	padding:5px 10px;
+	color:#767676;
+  }
+  .nav_list{
+  	padding: 15px 20px;
+  	border-top: 2px solid #007bff;
+  	width: 200px;
+  	display: inline-block;
+  	background-color: #fff;
+  }
+     	    /*模态框里的选择器*/
+ #business_form select{
+ 	border:1px solid #ccc;
+	border-radius: 3px;
+	color:#767676;
+	padding:6px 12px;
+
+ }
+#delmore{
+	float: left;
+	font-size: 10px;
+	background-color: red;
+	color: #fff;
+	border-radius: 5px;
+	padding:5px;
+}
+
+</style>
+<div class="nav_list">商家信息</div>
+<div class="content">
+    
+<h5>商家列表</h5>
+<!-- 头部 -->
+<!-- 下拉框 -->
+		<div class="findby">
+		<!--   通过地点查找省份 --> 
+		   <select class="seloc" value="">  
+		   </select>
+		   <!--   通过省份查找 --> 
+		   <select class="sepro" value="">		        
+		   </select>
+		   <!--   通过城市查找 --> 
+		   <select class="secity" value="">		        
+		   </select>
+		     <!--  通过行业类型查找行业 -->
+		    <select class="seind" value="">
+
+		   <option >行业</option>
+		    <option>子选项1</option>
+		     <option>子选项1</option>
+		   </select>
+		   <!-- 	通过公司规模查找 -->
+		   <select class="sesca" value="">
+	
+		   <option >规模</option>
+		    <option>子选项1</option>
+		     <option>子选项1</option>
+		   </select>		       
+		</div>
+<!-- 按钮 -->
+		<div class="btns">
+		<!--添加按钮 -->
+		   <div  id="btn-add" class="btn btn-outline-dark">添加</div>
+		   <div  id="btn-black" class="btn btn-outline-danger">还原</div>
+		</div>
+<!-- 添加模态框 -->
+<!-- 外框 -->
+
+<!-- 显示数据的表格 -->
+	<table class="table businesstable">
+	  <thead class="thead-dark">
+	    <tr>
+	      <th scope="col">#</th>
+	      <th scope="col">企业名称</th>
+	      <th scope="col">联系人</th>
+	      <th scope="col">联系方式</th>
+	      <th scope="col">行业</th>
+	      <th scope="col">所在地</th>
+	      <th scope="col">公司规模</th>
+	      <th scope="col">详情</th>
+	      <th scope="col">操作</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	  </tbody>
+	</table>
+	  <div id="delmore" >批量删除</div>
+			<!-- 分页按钮 -->
+		<div class="page" style="float: right;">
+			<nav aria-label="Page navigation example">
+				<ul class="pagination">				   
+				    <li class="page-item"><a class="page-link">1</a></li>
+				</ul>
+			</nav>
+		</div>
+</div>
+<script type="text/javascript">
+//获取商户的全部信息打印到表格中
+	 var baseURL="http://203.195.246.58:7777";
+	  $(function(){
+	 	//w文档加载后执行
+				initBusinessData();
+				newpro();
+				newcity();
+				init(1);
+			})
+   //-------------------实验的分页----------------------------
+     function init(page,data){
+             
+        var url = "/Business/findAll"
+			$.get(baseURL+url,function(response){
+		 		 console.log(response.data);//第一步：获取所有的数据
+		 		 var data=response.data; //第二步将数据赋给data数组
+		 		 var total=data.length; //获取数据的总长度
+		 		 var nums=5;//每一页多少条数据
+		 		 var sum_page; //总页数
+		 		 var cpage=1;//当前页数为第一页
+		 		 cpage=page;
+		 		  //计算总页码
+			        if (total%nums==0){
+					    sum_page=parseInt(total/nums);
+					    //若可以整除就是显示整页数
+					}else {
+							sum_page=parseInt(total/nums+1);
+							//若有余，加一页
+						}
+					getPage(sum_page,data); //获取页标
+					getdata(cpage,data);
+
+		 		});
+		}
+		init(1);//默认加载第一页
+			function getPage(sum_page,data){
+				var i;
+				var newitem;
+                    $('.pagination').empty();
+				   for(i=1;i<sum_page+1;i++){ //当前页表为已经默认有1，若页标小于总页数i++，从2开始
+				   	 newitem="<li class='page-item'><a class='page-link' onclick='init("+i+")'>"+ i +"</a></li>";
+				   	 //添加新的页标
+    			     $('.pagination').append();
+    			     $('.pagination').append(newitem);
+    			     //添加页标
+				   }
+
+			}
+			function getdata(cpage,data){
+				var nawTr;
+			     //获取数据
+			     var j=(cpage-1)*5;//获取开始索引
+			     var k;//获取结束索引
+               $(".businesstable> tbody").empty();
+          
+			     for(k=0;k<=5;k++){
+			     	newTr = $(`<tr>
+				 		<td><input type="checkbox" class="checkbox"value="`+data[j+k].id+`"></td>
+						<td>`+data[j+k].name+`</td>
+						<td>`+data[j+k].contactName+`</td>
+						<td>`+data[j+k].contactPhone+`</td>
+						<td>`+data[j+k].industry+`</td>
+						<td>`+data[j+k].province+`-`+data[j+k].city+`</td>
+						<td>`+data[j+k].scale+`</td>
+					<td><a class="btn_all" href="javascript:void(0)">查看</a></td>
+				 		<td>
+				 			<a class="btn_del" href="javascript:void(0)">删除</a>
+							<a class="btn_upd" href="javascript:void(0)">修改</a>
+				 		</td>
+			 	</tr>`);
+				  $(".businesstable> tbody").append(newTr);
+
+			     }
+			}
+	 
+	
+	 function initBusinessData(){
+			var url = "/Business/findAll"
+			$.get(baseURL+url,function(response){
+				console.log(response);
+			    //添加一个默认地址选项
+			     $('.seloc').empty();
+			     $('.seloc').append("<option value='0'>地址</optio>");
+			     //这样还原的时候会自动跟新子选项表里面的内容然后默认加上第一项
+			     //添加一个默认省份选项
+			     $('.sepro').empty();
+			     $('.sepro').append("<option value='0'>省份</optio>");
+			     //添加一个城市选项
+			     $('.secity').empty();
+			     $('.secity').append("<option value='0'>城市</optio>");
+		         //行业同理
+			     $('.seind').empty();
+			     $('.seind').append("<option value='0'>行业</optio>");
+			     //规模同理
+			     $('.sesca').empty();
+			     $('.sesca').append("<option value='0'>规模</optio>");
+			  //---------实验下拉框去重---------
+			  var arrloc=[];
+			  //使用空数组arr接收返回数据中的地址信息
+			  var arrpro=[];
+			   //使用空数组arr接收返回数据中的省份信息
+			   var arrcity=[];
+			   //使用空数组arr接收返回数据中的城市信息
+			   var arrind=[];
+			   //使用空数组arr接收返回数据中的行业信息
+			   var arrsca=[];
+			   //使用空数组arr接收返回数据中的规模信息
+			  
+			 response.data.forEach(function(item){
+			    	//将获取到的数据放入数组中
+			    	arrloc.push(item.location);
+			    	arrpro.push(item.province);
+			    	arrcity.push(item.city);
+			    	arrind.push(item.industry);
+			    	arrsca.push(item.scale);
+			});
+			    //重新定义数组去重函数
+			   Array.prototype.myloc = function(){
+			   	var newloc=[];
+			   	for (var i = 0; i < arrloc.length; i++){
+			   		var a=newloc.indexOf(arrloc[i]);
+			   		if(a==-1){
+			   			newloc[newloc.length]=arrloc[i];
+			   		}
+			   	}		   	
+			   	return newloc;
+			   	
+			   }
+			    var loc=arrloc.myloc();
+			   loc.forEach(function(item){
+			   	if (item!=null&&item!='') {
+                  //添加地址子选项
+				 var newlocoption=$(`<option value="`+item+`">`+item+`</option>`);
+			   	}
+			   	$(".seloc").append(newlocoption);
+			   })
+
+			   //---------省份-----------
+			   Array.prototype.mypro= function(){
+			   	var newpro=[];
+			   	for (var i = 0; i<arrpro.length; i++){
+			   		var a=newpro.indexOf(arrpro[i]);
+			   		if(a==-1){
+			   			newpro[newpro.length]=arrpro[i];
+			   		}
+			   	}  	
+			   	return newpro;	   	
+			   }			  
+			   var pro=arrpro.mypro();
+			   pro.forEach(function(item){
+			   	if (item!=null&&item!='') {
+                  //添加省份子选项
+				 var newprooption=$(`<option value="`+item+`">`+item+`</option>`);
+			   	}
+			   	$(".sepro").append(newprooption);
+			   })
+			   //---------城市-----------
+			   Array.prototype.mycity= function(){
+			   	var newcity=[];
+			   	for (var i = 0; i<arrcity.length; i++){
+			   		var a=newcity.indexOf(arrcity[i]);
+			   		if(a==-1){
+			   			newcity[newcity.length]=arrcity[i];
+			   		}
+			   	}   	
+			   	return newcity;	   	
+			   }			  
+			   var city=arrcity.mycity();
+			   city.forEach(function(item){
+			   	if (item!=null&&item!='') {
+                  //添加省份子选项
+				 var newcityoption=$(`<option value="`+item+`">`+item+`</option>`);
+			   	}
+			   	$(".secity").append(newcityoption);
+			   })
+			    //---------行业-----------
+			   Array.prototype.myind= function(){
+			   	var newind=[];
+			   	for (var i = 0; i<arrind.length; i++){
+			   		var a=newind.indexOf(arrind[i]);
+			   		if(a==-1){
+			   			newind[newind.length]=arrind[i];
+			   		}
+			   	}   	
+			   	return newind;	   	
+			   }			  
+			   var ind=arrind.myind();
+			  ind.forEach(function(item){
+			   	if (item!=null&&item!='') {
+                  //添加省份子选项
+				 var newindoption=$(`<option value="`+item+`">`+item+`</option>`);
+			   	}
+			   	$(".seind").append(newindoption);
+			   })
+			    //---------规模-----------
+			   Array.prototype.mysca= function(){
+			   	var newsca=[];
+			   	for (var i = 0; i<arrsca.length; i++){
+			   		var a=newsca.indexOf(arrsca[i]);
+			   		if(a==-1){
+			   			newsca[newsca.length]=arrsca[i];
+			   		}
+			   	}   	
+			   	return newsca;	   	
+			   }			  
+			   var sca=arrsca.mysca();
+			  sca.forEach(function(item){
+			   	if (item!=null&&item!='') {
+                  //添加省份子选项
+				 var newscaoption=$(`<option value="`+item+`">`+item+`</option>`);
+			   	}
+			   	$(".sesca").append(newscaoption);
+			   })																		
+				
+		});
+		}
+
+        //遍历数组的方法
+		function foreach(response){
+			 $('.businesstable>tbody').empty();
+			    response.data.forEach(function(item){
+					var newTr = $(`<tr>
+						<td><input type="checkbox" class="checkbox"value="`+item.id+`"></td>
+						<td>`+item.name+`</td>
+						<td>`+item.contactName+`</td>
+						<td>`+item.contactPhone+`</td>
+						<td>`+item.industry+`</td>
+						<td>`+item.province+`-`+item.city+`</td>
+						<td>`+item.scale+`</td>
+						<td><a class="btn_all" href="javascript:void(0)">查看</a></td>
+						<td>
+							<a class="btn_del" href="javascript:void(0)">删除</a>
+							<a class="btn_upd" href="javascript:void(0)">修改</a>
+						</td>
+					</tr>`);
+					$(".businesstable> tbody").append(newTr);
+		})
+			}
+
+
+         
+		 //为下拉选择器添加选择事件
+	 //地址选择器
+	 $(".seloc").change(function(){
+	 	var url="/Business/findByLocation"
+	 	var opt=$(".seloc option:selected").val();
+	 	console.log(opt);
+	 	
+	 	if(opt==0){
+	 		initBusinessData();
+	 	}else{
+	 		var data={location:opt};
+			$.get(baseURL+url,data,function(response){;
+				foreach(response);	
+					});
+	 	}
+	 })
+
+
+	  //行业选择器
+	 $(".seind").change(function(){
+	 	var url="/Business/findByIndustry"
+	 	var opt=$(".seind option:selected").val();
+	 	
+	 	if(opt==0){
+	 		initBusinessData();
+	 	}else{
+	 		var data={industry:opt};
+			$.get(baseURL+url,data,function(response){
+							   foreach(response);
+					});
+	 	}
+	 })
+	  //规模选择器
+	 $(".sesca").change(function(){
+	 	var url="/Business/findByScale"
+	 	var opt=$(".sesca option:selected").val();
+	 	console.log(opt);	 	
+	 	if(opt==0){
+	 		initBusinessData();
+	 	}else{
+	 		var data={scale:opt};
+			$.get(baseURL+url,data,function(response){
+							  foreach(response);
+					});
+	 	}
+	 })
+
+
+	 //为保存按钮添加事件
+	 function submitBusiness(){
+	 	// 1. 获取用户名手机号密码
+			    var id= $("#business_form input[name=id]").val();
+				var name = $("#business_form input[name=name]").val();
+				var contactName= $("#business_form input[name=contactName]").val();
+				var contactPhone = $("#business_form input[name=contactPhone]").val();
+				var industry = $("#business_form input[name=industry]").val();
+				var location = $("#business_form input[name=location]").val();
+				var scale = $("#scale option:selected").val();
+				var province = $("#sepro option:selected").val();
+				var city = $("#secity option:selected").val();
+				var establishedTime = $("#business_form input[name=establishedTime]").val();
+				var registeredCapital= $("#business_form input[name=registeredCapital]").val();
+				var description = $("#business_form input[name=description]").val();
+				var businessLicense= $("#business_form input[name=businessLicense]").val();
+				var status= $("#status option:selected").val();
+				
+				
+				var date;
+				// 2. 与后台交互	
+				var url ="/Business/saveOrUpdate "
+					if(id){
+				data = "id="+id+"&name="+name+"&contactName="+contactName+"&contactPhone="+contactPhone+"&industry="+industry+"&location="+location+"&scale="+scale+"&establishedTime="+establishedTime+"&registeredCapital="+registeredCapital+"&description="+description+"&businessLicense="+businessLicense+"&status="+status+"&province="+province+"&city="+city;
+			} else {
+				data ="&name="+name+"&contactName="+contactName+"&contactPhone="+contactPhone+"&industry="+industry+"&location="+location+"&scale="+scale+"&establishedTime="+establishedTime+"&registeredCapital="+registeredCapital+"&description="+description+"&businessLicense="+businessLicense+"&status="+status+"&province="+province+"&city="+city;
+			}
+				$.post(baseURL+url,data,function(result){
+					if(result.status === 200){
+					// 3. 关闭模态框，刷新列表
+						$("#businessModal").modal("hide");
+						closeModal.call(this);
+						initBusinessData();init(1);
+						console.log(result.message);
+					} else {
+						alert("接口异常");
+						console.log(result.message)
+					}
+				});
+	 }
+	
+		function closeModal(){
+			//编写代码表单重置
+			$(this).parents(".modal").modal("hide");
+			 $('#business_form input[name=id]').val("");
+			 $('#business_form input').val("");
+			 $('.allModalbody').find("span").remove();
+			 $("#sepro").val(0);
+			 $("#secity").val(0);
+			  $("#scale").val(0);
+			 $("#status").val(0);
+			 			
+		}
+
+		//为模态框中的元素添加事件
+	//为省份添加子元素
+       function newpro(){
+        var url = "/Province/findAll";
+        $.get(baseURL+url,function(response){
+			    //添加一个默认省份选项
+			     $('#sepro').empty();
+			     $('#sepro').append("<option value='0'>选择省份</optio>");
+			       response.data.forEach(function(item){
+					    //添加城市子选项
+					var prooption=$(`<option value="`+item.name+`">`+item.name+`</option>`);
+
+					$("#sepro").append(prooption);
+			});
+				
+		});
+       }
+       //为城市添加子元素
+       function newcity(){
+        var url = "/City/findAll/";
+        $.get(baseURL+url,function(response){
+			    //添加一个默认省份选项
+			     $('#secity').empty();
+			     $('#secity').append("<option value='0'>选择城市</optio>");
+			       response.data.forEach(function(item){
+					    //添加城市子选项
+					var cityoption=$(`<option value="`+item.name+`">`+item.name+`</option>`);
+					$("#secity").append(cityoption);
+			});
+				
+		});
+       }
+
+       
+	
+		//为表格中的按钮组添加事件
+		// 为添加按钮添加事件
+		 $(function(){	
+		  $('#btn-add').click(function(){
+		  	$("#businessModal").modal("show");
+		  	 })
+		  $('#btn-black').click(function(){
+		  	  initBusinessData();
+		  	  init(1);
+		  	 })
+		  //为批量删除按钮绑定事件
+		   $('#delmore').click(function(){
+		   	alert("确定批量删除吗?")
+		   		 var id=$(':checkbox:checked').map(function(index,item){
+			return $(item).val();
+		}).toArray();
+		   		id.forEach(function(item){
+		   			console.log(item);
+		   			var url = "/Business/deleteById ";
+					//获取需要删除的id
+					var data = {id:item};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.post(baseURL+url,data,function(response){
+	
+					});
+
+		   		})
+		   	initBusinessData();
+			init(1);
+			
+		  	 })
+		})
+		 //为表格按钮组添加事件
+		 	$(function(){
+			// 为删除按钮绑定事件
+		$(".table>tbody").on("click","a",function(){
+			switch(this.className){
+				case "btn_del":
+					var url = "/Business/deleteById ";
+					//获取需要删除的id
+					var id = $(this).parents("tr").find("input").val()
+					// get请求方式的数据必须为对象传递
+					var data = {id:id};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.post(baseURL+url,data,function(response){
+						alert(response.message);
+						initBusinessData();
+						init(1);
+					});
+					break;
+					//为修改按钮添加事件
+				case "btn_upd":
+						$("#businessModal").modal("show");
+					alert("确认更改这条数据")          
+	            // 1. 将原有的信息放到表单中9
+					var id=$(this).parents("td").parents("tr").find("input").val();
+						var name; 
+						var contactName;
+						var contactPhone;
+						var industry;
+						var location; 
+						var establishedTime; 
+						var registeredCapital;
+						var description; 
+						var businessLicense;						
+					var url = "/Business/findById";
+					//获取需要删除的id
+					var id = $(this).parents("tr").find("input").val()
+					// get请求方式的数据必须为对象传递
+					var data = {id:id};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.get(baseURL+url,data,function(response){
+						console.log(response);
+						initBusinessData();
+						console.log(response.data);
+						var v=response.data;
+						$("#business_form input[name=id]").val(v.id);
+				  $("#business_form input[name=name]").val(v.name);
+				 $("#business_form input[name=contactName]").val(v.contactName);
+				 $("#business_form input[name=contactPhone]").val(v.contactPhone);
+				 $("#business_form input[name=industry]").val(v.industry);
+				 $("#business_form input[name=location]").val(v.location);
+				 $("#business_form input[name=establishedTime]").val(v.establishedTime);
+				 $("#business_form input[name=registeredCapital]").val(v.registeredCapital);
+				 $("#business_form input[name=description]").val(v.description);
+			 	 $("#business_form input[name=businessLicense]").val(v.businessLicense);
+			 })
+					break;
+				//为商家的详情页面添加按钮事件
+					case "btn_all":
+					var url = "/Business/findById";
+					//获取需要删除的id
+					$("#allModal").modal("show");
+					var id = $(this).parents("tr").find("input").val()
+					// get请求方式的数据必须为对象传递
+					var data = {id:id};
+					// 调用jQuery的ajax方法删除一条记录并初始化数据
+					$.get(baseURL+url,data,function(response){
+						console.log(response);
+						initBusinessData();
+						console.log(response.data);
+						var val=response.data;				
+						$(".allModalbody h4[name=name]").append('<span>'+val.name+'</span>');
+				  		$(".allModalbody p[name=contactName]").append('<span>'+val.contactName+'</span>');
+						$(".allModalbody p[name=contactPhone]").append('<span>'+val.contactPhone+'</span>');
+						$(".allModalbody p[name=industry]").append('<span>'+val.industry+'</span>');
+						$(".allModalbody p[name=location]").append('<span>'+val.province+"-"+val.city+","+val.location+'</span>');
+						$(".allModalbody p[name=scale]").append('<span>'+val.scale+'</span>');
+						$(".allModalbody p[name=establishedTime]").append('<span>'+val.establishedTime+'</span>');
+						$(".allModalbody p[name=registeredCapital]").append('<span>'+val.registeredCapital+'</span>');
+						$(".allModalbody p[name=description]").append('<span>'+val.description+'</span>');
+						$(".allModalbody p[name=businessLicense]").append('<span>'+val.businessLicense+'</span>');
+						$(".allModalbody p[name=status]").append('<span>'+val.status+'</span>');
+					});
+				     
+					break;
+			}
+		})
+
+	})
+			
+				
+
+</script>

@@ -1,0 +1,38 @@
+
+.layui-layout-admin .layui-header{
+	background-color: #fff;
+}
+.layui-layout-admin .layui-logo{
+	background-color: #1D2B36;
+	background-image: url('../images/logo.png');
+	background-size: 100% 100%;
+}
+.layui-side-scroll{
+	background-color: #1D2B36;
+}
+.layui-nav-tree {
+	background-color: #1D2B36;
+	font-size: 19px;
+}
+.layui-layout-admin .layui-body {
+	background-color: #F1F1F1;
+}
+.layui-layout-admin .layui-header .layui-nav{
+	/*padding: 0px;*/
+}
+.layui-nav .layui-nav-item a{
+	color:#bbb;	
+	margin-left: 10px;
+}
+.layui-nav .layui-nav-item a i{
+	margin-right: 8px;
+	font-size: 18px;
+}
+#nav a{
+	color: #fff;
+	font-size: 16px;
+}
+label{
+	font-size: 14px;
+}
+
